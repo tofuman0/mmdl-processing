@@ -58,12 +58,12 @@ def readmmdl():
     logbuf = ''
     while (file.tell() < (16 + mattablesize)):
         matcount += 1
+        curroffset = file.tell()
         matid = toInt(file.read(4))
         matflag = toInt(file.read(4))
         matopacity = toFloat(file.read(4))
-        curroffset = file.tell()
-        logbuf += f"\nCurrent Material: {matcount}\n"
         logbuf += f"Current Offset: {curroffset}\n"
+        logbuf += f"\nCurrent Material: {matcount}\n"
         logbuf += f"Mat ID: {matid}\n"
         logbuf += f"Mat Flag: {hex(matflag)}\n"
         if(matflag == 0):
@@ -101,12 +101,14 @@ def readmmdl():
                 logbuf += f"{toFloat(file.read(4))}, {toFloat(file.read(4))}\n"
         else:
             # Is regular type
-            matname = toStr(file.read(16))
+            matname = toStr(file.read(24))
             if(matname == ''):
-                file.seek(curroffset + 4)
+                file.seek(curroffset + 18)
+                unknownvalue = toInt(file.read(2))
+                file.seek(curroffset + 16)
                 logbuf += "Mat Name: [NO NAME]\n"
-                if (matid != 0):
-                    logbuf += f"{toInt(file.read(4))}, {toInt(file.read(4))}, {toInt(file.read(4))}, {toFloat(file.read(4))}, {toFloat(file.read(4))}, {toFloat(file.read(4))}\n"
+                if (unknownvalue != 0):
+                    logbuf += f"{toFloat(file.read(4))}, {toFloat(file.read(4))}, {toFloat(file.read(4))}, {toFloat(file.read(4))}, {toFloat(file.read(4))}, {toFloat(file.read(4))}\n"
                 else:
                     # Is entry before mat type
                     logbuf += f"{toInt(file.read(4))}, {toInt(file.read(4))}, {toInt(file.read(4))}, "
@@ -116,7 +118,7 @@ def readmmdl():
                     logbuf += f"{toFloat(file.read(4))}, {toFloat(file.read(4))}\n"
             else:
                 logbuf += f"Mat Name: {matname}\n"
-                logbuf += f"{toInt(file.read(4))}, {toInt(file.read(4))}, {toInt(file.read(4))}\n"
+                logbuf += f"{toInt(file.read(4))}\n"
                 logbuf += f"{toFloat(file.read(4))}, {toFloat(file.read(4))}, {toFloat(file.read(4))}, {toFloat(file.read(4))}, "
                 logbuf += f"{toFloat(file.read(4))}, {toFloat(file.read(4))}, {toFloat(file.read(4))}, {toFloat(file.read(4))}, "
                 logbuf += f"{toFloat(file.read(4))}, {toFloat(file.read(4))}, {toFloat(file.read(4))}, {toFloat(file.read(4))}, "
@@ -124,7 +126,7 @@ def readmmdl():
                 logbuf += f"{toFloat(file.read(4))}, "
                 logbuf += f"{toFloat(file.read(4))}\n"
                 logbuf += f"{toFloat(file.read(4))}, {toFloat(file.read(4))}, {toFloat(file.read(4))}, {toFloat(file.read(4))}, {toFloat(file.read(4))}, {toFloat(file.read(4))}\n"
-    logbuf += f"Total Materials: {matcount}\n"
+    logbuf += f"-------------------------\nTotal Materials: {matcount}\n-------------------------\n"
     logoutput(logbuf)
     # Vertice Table
     file.seek(16 + mattablesize)
