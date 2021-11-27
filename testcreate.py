@@ -1,0 +1,16 @@
+import mmdl
+
+mmdlFile = mmdl.MMDL()
+mmdlFile.InitializeMMDL()
+mmdlFile.AddMaterial([0, "[NO NAME]", 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70, 80, 90, 100, 110, 123456])
+mmdlFile.AddVertice([10.0, 10.0, 10.0, 0, 0.01, 0.02])
+mmdlFile.AddVertice([10.0, 11.0, 10.0, 0, 0.01, 0.02])
+mmdlFile.AddVertice([11.0, 11.0, 10.0, 0, 0.01, 0.02])
+mmdlFile.AddVertice([11.0, 10.0, 10.0, 0, 0.01, 0.02])
+mmdlFile.AddFace(0)
+mmdlFile.AddFace(1)
+mmdlFile.AddFace(2)
+mmdlFile.AddFace(0)
+mmdlFile.AddFace(2)
+mmdlFile.AddFace(3)
+mmdlFile.WriteMMDL("testing.mmdl")

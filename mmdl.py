@@ -323,8 +323,54 @@ class MMDL:
             file.write(self.toBytes(value, self.faceEntrySize))
 
         file.close()
+
+    def InitializeMMDL(self, unknownValue = 0x142, verticeSize = 24, faceSize = 2):
+        self.unknownValue1 = unknownValue
+        self.verticesEntrySize = verticeSize
+        self.faceEntrySize = faceSize
+        self.materialTable = []
+        self.materialTableSize = 0
+        self.verticesTable = []
+        self.verticesCount = 0
+        self.verticesTableSize = 0
+        self.faceTable = []
+        self.faceCount = 0
+        self.faceTableSize = 0
+
+    def AddMaterial(self, material):
+        if (self.__checkMaterialEntry(material) == True):
+            self.materialTable.append(material)
+            self.__calculateMaterialTableSize()
+        else:
+            raise Exception("Material entry invalid")
+
+    def AddVertice(self, vertice):
+        if (self.verticesEntrySize == 0 and (len(vertice) * 4 == 24 or len(vertice) * 4 == 36)):
+            self.verticesEntrySize = len(vertice) * 4
+        elif (self.verticesEntrySize != len(vertice) * 4):
+            raise Exception("Vertice size invalid")
+
+        self.verticesTable.append(vertice)
+        self.__calculateVerticeTableSize()
+
+    def AddFace(self, face):
+        self.faceTable.append(face)
+        self.__calculateFaceTableSize()
+
+    def __checkMaterialEntry(self, material):
+        if (material[0] > 4 or material[0] < 0):
+            return False
+
+        structure = self.materialEntryStructures[material[0]]
+        i = 0
+        for value in material[1:]:
+            if (type(value) is not structure[i][1]):
+                return False
+            i += 1
+
+        return True
     
-    def GetMaterialTableSize(self):
+    def __calculateMaterialTableSize(self):
         size = int(0)
         for material in self.materialTable:
             for value in material[1:]:
@@ -339,22 +385,33 @@ class MMDL:
         self.materialTableSize = size
         return size
 
-    def GetVerticesTableSize(self):
+    def GetMaterialTableSize(self):
+        return self.__calculateMaterialTableSize()
+
+    def __calculateVerticeTableSize(self):
         size = int(0)
         for vertice in self.verticesTable:
             size += int(len(vertice) * 4)
         self.verticesTableSize = size
+        self.verticesCount = len(self.verticesTable)
         return size
+
+    def GetVerticesTableSize(self):
+        return self.__calculateVerticeTableSize()
 
     def GetVerticesCount(self):
         count = int(len(self.verticesTable))
         self.verticesCount = count
         return count
 
-    def GetFaceTableSize(self):
+    def __calculateFaceTableSize(self):
         size = int(len(self.faceTable) * self.faceEntrySize)
         self.faceTableSize = size
+        self.faceCount = len(self.faceTable)
         return size
+
+    def GetFaceTableSize(self):
+        return self.__calculateFaceTableSize()
 
     def GetFaceCount(self):
         count = int(len(self.faceTable))
