@@ -1,6 +1,8 @@
 import mmdl
 import sys
 import traceback
+import prettyprint
+import pprint
 
 modelfile = ''
 logfile = ''
@@ -35,7 +37,7 @@ def readmmdl(modelfilename):
         mmdlFile = mmdl.MMDL()
         mmdlFile.ReadMMDL(modelfilename)
         logoutput(f"File: {mmdlFile.fileName}")
-        logoutput(f"Material table size: {mmdlFile.materialTableSize}")
+        logoutput(f"Object table size: {mmdlFile.objectTableSize}")
         logoutput(f"Vertices table size: {mmdlFile.verticesTableSize}")
         logoutput(f"Face table size: {mmdlFile.faceTableSize}")
         logoutput(f"Unknown Value 1: {mmdlFile.unknownValue1}")
@@ -44,21 +46,8 @@ def readmmdl(modelfilename):
         logoutput(f"Face size: {mmdlFile.faceEntrySize}")
         logoutput(f"Face count: {mmdlFile.faceCount}")
 
-        # Material
-        logbuf = '\n'
-        i = 0
-        for materials in mmdlFile.materialTable:
-            structure = mmdlFile.materialEntryStructures[materials[0]]
-            i += 1
-            j = 0
-            logbuf += f"Current Material: {i}\n"
-            for value in materials[1:]:
-                if (type(value) is structure[j][1]):
-                    logbuf += f"{structure[j][0]}: {value}\n"
-                else:
-                    logbuf += f"{structure[j][0]}: {value} - Structure mismatch!\n"
-                j += 1
-            logbuf += "\n"
+        # Object
+        logbuf = prettyprint.print(f"\n{mmdlFile.objectEntries}\n")
         logoutput(logbuf)
 
         # Vertices

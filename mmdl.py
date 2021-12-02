@@ -1,18 +1,11 @@
 import sys
 import struct
-
-# Material Entry Types:
-#   The material types that are specified by this class are used to identify the entries they are not part of the file structure itself
-#   0: Initial material Entry (first and only entry of this type). Has no material name 1, 2 or 3 nor Float value at the beginning of the structure
-#   1: Entry with no material name 1, 2, or 3 that doesn't have faces assigned to it
-#   2: Entry with no name that does have faces assigned to it but does have material names 2 and 3.
-#   3: Initial material Entry that has a material name 1. Unlikely to exist but just incase it is handled
-#   4: Entry that has a material name 1 but not material name 2 or 3.
+from dataclasses import dataclass, field
 
 class MMDL:
     def __init__(self):
         self.fileName = str()
-        self.materialTableSize = int()
+        self.objectTableSize = int()
         self.verticesTableSize = int()
         self.verticesEntrySize = int()
         self.verticesCount = int()
@@ -20,123 +13,9 @@ class MMDL:
         self.faceEntrySize = int()
         self.faceCount = int()
         self.unknownValue1 = int()
-        self.materialTable = []
+        self.objectEntries = self.ObjectBase()
         self.verticesTable = []
         self.faceTable = []
-        self.materialEntryStructures = [
-                [
-                    ["Material Name 1", str],
-                    ["Unknown Value 1", float],
-                    ["Unknown Value 2", float],
-                    ["Unknown Value 3", float],
-                    ["Unknown Value 4", float],
-                    ["Unknown Value 5", float],
-                    ["Unknown Value 6", float],
-                    ["Unknown Value 7", int],
-                    ["Unknown Value 8", int],
-                    ["Unknown Value 9", int],
-                    ["Unknown Value 10", int],
-                    ["Material Type", int],
-                    ["Material ID", int]
-                ],
-                [
-                    ["Material Opacity", float],
-                    ["Material Name 1", str],
-                    ["Unknown Value 1", float],
-                    ["Unknown Value 2", float],
-                    ["Unknown Value 3", float],
-                    ["Unknown Value 4", float],
-                    ["Unknown Value 5", float],
-                    ["Unknown Value 6", float],
-                    ["Material Type", int],
-                    ["Material ID", int]
-                ],
-                [
-                    ["Material Name 1", str],
-                    ["Vertice Offset", int],
-                    ["Vertice Count", int],
-                    ["Face Offset", int],
-                    ["Face Count", int],
-                    ["Unknown Value 1", float],
-                    ["Unknown Value 2", float],
-                    ["Unknown Value 3", float],
-                    ["Unknown Value 4", float],
-                    ["Unknown Value 5", float],
-                    ["Unknown Value 6", float],
-                    ["Unknown Value 7", float],
-                    ["Unknown Value 8", float],
-                    ["Unknown Value 9", float],
-                    ["Unknown Value 10", float],
-                    ["Unknown Value 11", float],
-                    ["Unknown Value 12", float],
-                    ["Unknown Value 13", float],
-                    ["Unknown Value 14", float],
-                    ["Unknown Value 15", float],
-                    ["Unknown Value 16", float],
-                    ["Unknown Value 17", float],
-                    ["Material Name 2", str],
-                    ["Unknown Value 18", float],
-                    ["Material Name 3", str],
-                    ["Material ID", int]
-                ],
-                [
-                    ["Material Name 1", str],
-                    ["Unknown Value 1", float],
-                    ["Unknown Value 2", float],
-                    ["Unknown Value 3", float],
-                    ["Unknown Value 4", float],
-                    ["Unknown Value 5", float],
-                    ["Unknown Value 6", float],
-                    ["Unknown Value 7", float],
-                    ["Unknown Value 8", float],
-                    ["Unknown Value 9", float],
-                    ["Unknown Value 10", float],
-                    ["Unknown Value 11", float],
-                    ["Unknown Value 12", float],
-                    ["Unknown Value 13", float],
-                    ["Unknown Value 14", float],
-                    ["Unknown Value 15", float],
-                    ["Unknown Value 16", float],
-                    ["Unknown Value 17", float],
-                    ["Unknown Value 18", float],
-                    ["Unknown Value 19", float],
-                    ["Unknown Value 20", float],
-                    ["Unknown Value 21", float],
-                    ["Unknown Value 22", float],
-                    ["Unknown Value 23", float],
-                    ["Material Type", int],
-                    ["Material ID", int]
-                ],
-                [
-                    ["Material Opacity", float],
-                    ["Material Name 1", str],
-                    ["Unknown Value 1", float],
-                    ["Unknown Value 2", float],
-                    ["Unknown Value 3", float],
-                    ["Unknown Value 4", float],
-                    ["Unknown Value 5", float],
-                    ["Unknown Value 6", float],
-                    ["Unknown Value 7", float],
-                    ["Unknown Value 8", float],
-                    ["Unknown Value 9", float],
-                    ["Unknown Value 10", float],
-                    ["Unknown Value 11", float],
-                    ["Unknown Value 12", float],
-                    ["Unknown Value 13", float],
-                    ["Unknown Value 14", float],
-                    ["Unknown Value 15", float],
-                    ["Unknown Value 16", float],
-                    ["Unknown Value 17", float],
-                    ["Unknown Value 18", float],
-                    ["Unknown Value 19", float],
-                    ["Unknown Value 20", float],
-                    ["Unknown Value 21", float],
-                    ["Unknown Value 22", float],
-                    ["Unknown Value 23", float],
-                    ["Material Type", int],
-                    ["Material ID", int]
-                ]
-            ]
         self.verticesEntryStructures = [
                 [
                     ["Unknown Value 1", float],
@@ -145,7 +24,7 @@ class MMDL:
                     ["Unknown Value 4", float],
                     ["Unknown Value 5", float],
                     ["Unknown Value 6", float],
-                    ["Colour", int],
+                    ["Colour", int, 4],
                     ["Unknown Value 7", float],
                     ["Unknown Value 8", float]
                 ],
@@ -153,12 +32,104 @@ class MMDL:
                     ["Unknown Value 1", float],
                     ["Unknown Value 2", float],
                     ["Unknown Value 3", float],
-                    ["Colour", int],
+                    ["Colour", int, 4],
                     ["Unknown Value 5", float],
                     ["Unknown Value 6", float]
                 ]
             ]
+        
+    @dataclass
+    class ObjectBase:
+        UnknownValue1: float = 0.0
+        UnknownValue2: float = 0.0
+        UnknownValue3: float = 0.0
+        UnknownValue4: float = 0.0
+        UnknownValue5: float = 0.0
+        UnknownValue6: float = 0.0
+        UnknownValue7: float = 0.0
+        UnknownValue8: int = 0
+        UnknownValue9: int = 0
+        UnknownValue10: int = 0
+        UnknownValue11: int = 0
+        SubEntryCount: int = 0
+        ID: int = 0
+        Entries: list = field(default_factory=list)
+
+    @dataclass 
+    class Object1:
+        UnknownValue1: float = 0.0
+        UnknownValue2: float = 0.0
+        UnknownValue3: float = 0.0
+        UnknownValue4: float = 0.0
+        UnknownValue5: float = 0.0
+        UnknownValue6: float = 0.0
+        UnknownValue7: float = 0.0
+        UnknownValue8: float = 0.0
+        SubEntryCount: int = 0
+        ID: int = 0
+        Entries: list = field(default_factory=list)
+
+    @dataclass
+    class Object2:
+        UnknownValue1: float = 0.0
+        Name: str = str()
+        UnknownValue2: float = 0.0
+        UnknownValue3: float = 0.0
+        UnknownValue4: float = 0.0
+        UnknownValue5: float = 0.0
+        UnknownValue6: float = 0.0
+        UnknownValue7: float = 0.0
+        UnknownValue8: float = 0.0
+        UnknownValue9: float = 0.0
+        UnknownValue10: float = 0.0
+        UnknownValue11: float = 0.0
+        UnknownValue12: float = 0.0
+        UnknownValue13: float = 0.0
+        UnknownValue14: float = 0.0
+        UnknownValue15: float = 0.0
+        UnknownValue16: float = 0.0
+        UnknownValue17: float = 0.0
+        UnknownValue18: float = 0.0
+        UnknownValue19: float = 0.0
+        UnknownValue20: float = 0.0
+        UnknownValue21: float = 0.0
+        UnknownValue22: float = 0.0
+        UnknownValue23: float = 0.0
+        UnknownValue24: float = 0.0
+        UnknownValue25: float = 0.0
+        SubEntryCount: int = 0
+        ID: int = 0
+        Entries: list = field(default_factory=list)
     
+    @dataclass
+    class Object3:
+        UnknownValue1: int = 0
+        VerticeOffset: int = 0
+        VerticeCount: int = 0
+        FaceOffset: int = 0
+        FaceCount: int = 0
+        UnknownValue2: float = 0.0
+        UnknownValue3: float = 0.0
+        UnknownValue4: float = 0.0
+        UnknownValue5: float = 0.0
+        UnknownValue6: float = 0.0
+        UnknownValue7: float = 0.0
+        UnknownValue8: float = 0.0
+        UnknownValue9: float = 0.0
+        UnknownValue10: float = 0.0
+        UnknownValue11: float = 0.0
+        UnknownValue12: float = 0.0
+        UnknownValue13: float = 0.0
+        UnknownValue14: float = 0.0
+        UnknownValue15: float = 0.0
+        UnknownValue16: float = 0.0
+        UnknownValue17: float = 0.0
+        UnknownValue18: float = 0.0
+        MaterialName: str = str()
+        UnknownValue19: float = 0.0
+        TextureName: str = str()
+        ID: int = 0
+
     def ReadMMDL(self, filename):
         file = open(filename, "rb")
         self.fileType = file.read(4)
@@ -167,7 +138,7 @@ class MMDL:
         self.fileName = filename
         
         # File header
-        self.materialTableSize = self.toInt(file.read(4))
+        self.objectTableSize = self.toInt(file.read(4))
         self.verticesTableSize = self.toInt(file.read(4))
         self.faceTableSize = self.toInt(file.read(4))
         self.unknownValue1 = self.toInt(file.read(4))
@@ -176,100 +147,105 @@ class MMDL:
         self.faceEntrySize = self.toInt(file.read(4))
         self.faceCount = self.toInt(file.read(4))
         
-        # Material Table
-        matCount = 0
-        while (file.tell() < (16 + self.materialTableSize)):
-            matCount += 1
-            currOffset = file.tell()
-            matOpacity = 0.0
-            if(matCount > 1): # First Entry doesn't have Opacity
-                matOpacity = self.toFloat(file.read(4))
-            if ((matCount == 1) or not (self.toInt(file.read(4)) & 0xFF000000)): # No Name
-                matName1 = "[NO NAME]"
-                if (matCount == 1):
-                    currOffset += 4
-                    file.seek(currOffset)
-                matUnknown1 = self.toFloat(file.read(4))
-                if (self.toInt(bytearray(struct.pack('f', matUnknown1))) & 0xFFFF0000): # lame check for if float value
-                    matUnknown2 = self.toFloat(file.read(4))
-                    matUnknown3 = self.toFloat(file.read(4))
-                    matUnknown4 = self.toFloat(file.read(4))
-                    matUnknown5 = self.toFloat(file.read(4))
-                    matUnknown6 = self.toFloat(file.read(4))
-                    if(matCount == 1): # First Entry has more data
-                        matUnknown7 = self.toInt(file.read(4))
-                        matUnknown8 = self.toInt(file.read(4))
-                        matUnknown9 = self.toInt(file.read(4))
-                        matUnknown10 = self.toInt(file.read(4))
-                    matType = self.toInt(file.read(4))
-                    matId = self.toInt(file.read(4))
+        # Object Table
+        # Read Initial Entry (Structure 0)
+        self.objectEntries.UnknownValue1 = self.toFloat(file.read(4))
+        self.objectEntries.UnknownValue2 = self.toFloat(file.read(4))
+        self.objectEntries.UnknownValue3 = self.toFloat(file.read(4))
+        self.objectEntries.UnknownValue4 = self.toFloat(file.read(4))
+        self.objectEntries.UnknownValue5 = self.toFloat(file.read(4))
+        self.objectEntries.UnknownValue6 = self.toFloat(file.read(4))
+        self.objectEntries.UnknownValue7 = self.toFloat(file.read(4))
+        self.objectEntries.UnknownValue8 = self.toInt(file.read(4))
+        self.objectEntries.UnknownValue9 = self.toInt(file.read(4))
+        self.objectEntries.UnknownValue10 = self.toInt(file.read(4))
+        self.objectEntries.UnknownValue11 = self.toInt(file.read(4))
+        self.objectEntries.SubEntryCount = self.toInt(file.read(4))
+        self.objectEntries.ID = self.toInt(file.read(4))
 
-                    if(matCount == 1): # First Entry has more data  
-                        self.materialTable.append([0, matName1, matUnknown1, matUnknown2, matUnknown3, matUnknown4, matUnknown5, matUnknown6, matUnknown7, matUnknown8, matUnknown9, matUnknown10, matType, matId])
-                    else:
-                        self.materialTable.append([1, matOpacity, matName1, matUnknown1, matUnknown2, matUnknown3, matUnknown4, matUnknown5, matUnknown6, matType, matId])
-                else: # Is material assigned to object
-                    file.seek(currOffset + 4)
-                    matUnknown1 = self.toInt(file.read(4))
-                    matUnknown2 = self.toInt(file.read(4))
-                    matUnknown3 = self.toInt(file.read(4))
-                    matUnknown4 = self.toInt(file.read(4))
-                    matUnknown5 = self.toFloat(file.read(4))
-                    matUnknown6 = self.toFloat(file.read(4))
-                    matUnknown7 = self.toFloat(file.read(4))
-                    matUnknown8 = self.toFloat(file.read(4))
-                    matUnknown9 = self.toFloat(file.read(4))
-                    matUnknown10 = self.toFloat(file.read(4))
-                    matUnknown11 = self.toFloat(file.read(4))
-                    matUnknown12 = self.toFloat(file.read(4))
-                    matUnknown13 = self.toFloat(file.read(4))
-                    matUnknown14 = self.toFloat(file.read(4))
-                    matUnknown15 = self.toFloat(file.read(4))
-                    matUnknown16 = self.toFloat(file.read(4))
-                    matUnknown17 = self.toFloat(file.read(4))
-                    matUnknown18 = self.toFloat(file.read(4))
-                    matUnknown19 = self.toFloat(file.read(4))
-                    matUnknown20 = self.toFloat(file.read(4))
-                    matUnknown21 = self.toFloat(file.read(4))
-                    matName2 = self.toStr(file.read(32))
-                    matUnknown22 = self.toFloat(file.read(4))
-                    matName3 = self.toStr(file.read(32))
-                    matId = self.toInt(file.read(4))
-                    self.materialTable.append([2, matName1, matUnknown1, matUnknown2, matUnknown3, matUnknown4, matUnknown5, matUnknown6, matUnknown7, matUnknown8, matUnknown9, matUnknown10, matUnknown11, matUnknown12, matUnknown13, matUnknown14, matUnknown15, matUnknown16, matUnknown17, matUnknown18, matUnknown19, matUnknown20, matUnknown21, matName2, matUnknown22, matName3, matId])
-            else: # Has Name
-                file.seek(currOffset + 4)
-                matName = self.toStr(file.read(32))
-                matUnknown1 = self.toFloat(file.read(4))
-                matUnknown2 = self.toFloat(file.read(4))
-                matUnknown3 = self.toFloat(file.read(4))
-                matUnknown4 = self.toFloat(file.read(4))
-                matUnknown5 = self.toFloat(file.read(4))
-                matUnknown6 = self.toFloat(file.read(4))
-                matUnknown7 = self.toFloat(file.read(4))
-                matUnknown8 = self.toFloat(file.read(4))
-                matUnknown9 = self.toFloat(file.read(4))
-                matUnknown10 = self.toFloat(file.read(4))
-                matUnknown11 = self.toFloat(file.read(4))
-                matUnknown12 = self.toFloat(file.read(4))
-                matUnknown13 = self.toFloat(file.read(4))
-                matUnknown14 = self.toFloat(file.read(4))
-                matUnknown15 = self.toFloat(file.read(4))
-                matUnknown16 = self.toFloat(file.read(4))
-                matUnknown17 = self.toFloat(file.read(4))
-                matUnknown18 = self.toFloat(file.read(4))
-                matUnknown19 = self.toFloat(file.read(4))
-                matUnknown20 = self.toFloat(file.read(4))
-                matUnknown21 = self.toFloat(file.read(4))
-                matUnknown22 = self.toFloat(file.read(4))
-                matUnknown23 = self.toFloat(file.read(4))
-                matType = self.toInt(file.read(4))
-                matId = self.toInt(file.read(4))
-                if(matCount == 1): # First Entry doesn't have Opacity 
-                    self.materialTable.append([3, matName, matUnknown1, matUnknown2, matUnknown3, matUnknown4, matUnknown5, matUnknown6, matUnknown7, matUnknown8, matUnknown9, matUnknown10, matUnknown11, matUnknown12, matUnknown13, matUnknown14, matUnknown15, matUnknown16, matUnknown17, matUnknown18, matUnknown19, matUnknown20, matUnknown21, matUnknown22, matUnknown23, matType, matId])
-                else:
-                    self.materialTable.append([4, matOpacity, matName, matUnknown1, matUnknown2, matUnknown3, matUnknown4, matUnknown5, matUnknown6, matUnknown7, matUnknown8, matUnknown9, matUnknown10, matUnknown11, matUnknown12, matUnknown13, matUnknown14, matUnknown15, matUnknown16, matUnknown17, matUnknown18, matUnknown19, matUnknown20, matUnknown21, matUnknown22, matUnknown23, matType, matId])
+        # Read Object 1 (Structure 1)
+        for i in range(self.objectEntries.SubEntryCount):
+            __object1 = self.Object1()
+            __object1.UnknownValue1 = self.toFloat(file.read(4))
+            __object1.UnknownValue2 = self.toFloat(file.read(4))
+            __object1.UnknownValue3 = self.toFloat(file.read(4))
+            __object1.UnknownValue4 = self.toFloat(file.read(4))
+            __object1.UnknownValue5 = self.toFloat(file.read(4))
+            __object1.UnknownValue6 = self.toFloat(file.read(4))
+            __object1.UnknownValue7 = self.toFloat(file.read(4))
+            __object1.UnknownValue8 = self.toFloat(file.read(4))
+            __object1.SubEntryCount = self.toInt(file.read(4))
+            __object1.ID = self.toInt(file.read(4))
+            self.objectEntries.Entries.append(__object1)
+
+        # Read Object 2 (Structure 2)
+        for entry in self.objectEntries.Entries:
+            for i in range(entry.SubEntryCount):
+                __object2 = self.Object2()
+                __object2.UnknownValue1 = self.toFloat(file.read(4))
+                __object2.Name = self.toStr(file.read(32))
+                __object2.UnknownValue2 = self.toFloat(file.read(4))
+                __object2.UnknownValue3 = self.toFloat(file.read(4))
+                __object2.UnknownValue4 = self.toFloat(file.read(4))
+                __object2.UnknownValue5 = self.toFloat(file.read(4))
+                __object2.UnknownValue6 = self.toFloat(file.read(4))
+                __object2.UnknownValue7 = self.toFloat(file.read(4))
+                __object2.UnknownValue8 = self.toFloat(file.read(4))
+                __object2.UnknownValue9 = self.toFloat(file.read(4))
+                __object2.UnknownValue10 = self.toFloat(file.read(4))
+                __object2.UnknownValue11 = self.toFloat(file.read(4))
+                __object2.UnknownValue12 = self.toFloat(file.read(4))
+                __object2.UnknownValue13 = self.toFloat(file.read(4))
+                __object2.UnknownValue14 = self.toFloat(file.read(4))
+                __object2.UnknownValue15 = self.toFloat(file.read(4))
+                __object2.UnknownValue16 = self.toFloat(file.read(4))
+                __object2.UnknownValue17 = self.toFloat(file.read(4))
+                __object2.UnknownValue18 = self.toFloat(file.read(4))
+                __object2.UnknownValue19 = self.toFloat(file.read(4))
+                __object2.UnknownValue20 = self.toFloat(file.read(4))
+                __object2.UnknownValue21 = self.toFloat(file.read(4))
+                __object2.UnknownValue22 = self.toFloat(file.read(4))
+                __object2.UnknownValue24 = self.toFloat(file.read(4))
+                __object2.UnknownValue25 = self.toFloat(file.read(4))
+                __object2.SubEntryCount = self.toInt(file.read(4))
+                __object2.ID = self.toInt(file.read(4))
+                entry.Entries.append(__object2)
+            
+        # Read Object 3 (Structure 3)
+            for subentry in entry.Entries:
+                for i in range(subentry.SubEntryCount):
+                    __object3 = self.Object3()
+                    __object3.UnknownValue1 = self.toInt(file.read(4))
+                    __object3.VerticeOffset = self.toInt(file.read(4))
+                    __object3.VerticeCount = self.toInt(file.read(4))
+                    __object3.FaceOffset = self.toInt(file.read(4))
+                    __object3.FaceCount = self.toInt(file.read(4))
+                    __object3.UnknownValue2 = self.toFloat(file.read(4))
+                    __object3.UnknownValue3 = self.toFloat(file.read(4))
+                    __object3.UnknownValue4 = self.toFloat(file.read(4))
+                    __object3.UnknownValue5 = self.toFloat(file.read(4))
+                    __object3.UnknownValue6 = self.toFloat(file.read(4))
+                    __object3.UnknownValue7 = self.toFloat(file.read(4))
+                    __object3.UnknownValue8 = self.toFloat(file.read(4))
+                    __object3.UnknownValue9 = self.toFloat(file.read(4))
+                    __object3.UnknownValue10 = self.toFloat(file.read(4))
+                    __object3.UnknownValue11 = self.toFloat(file.read(4))
+                    __object3.UnknownValue12 = self.toFloat(file.read(4))
+                    __object3.UnknownValue13 = self.toFloat(file.read(4))
+                    __object3.UnknownValue14 = self.toFloat(file.read(4))
+                    __object3.UnknownValue15 = self.toFloat(file.read(4))
+                    __object3.UnknownValue16 = self.toFloat(file.read(4))
+                    __object3.UnknownValue17 = self.toFloat(file.read(4))
+                    __object3.UnknownValue18 = self.toFloat(file.read(4))
+                    __object3.MaterialName = self.toStr(file.read(32))
+                    __object3.UnknownValue19 = self.toFloat(file.read(4))
+                    __object3.TextureName = self.toStr(file.read(32))
+                    __object3.ID = self.toInt(file.read(4))
+                    subentry.Entries.append(__object3)
+
+        
         # Vertices Table
-        file.seek(16 + self.materialTableSize)
+        file.seek(16 + self.objectTableSize)
         for i in range(self.verticesCount):
             if (self.verticesEntrySize == 36):
                 self.verticesTable.append([self.toFloat(file.read(4)), self.toFloat(file.read(4)), self.toFloat(file.read(4)), self.toFloat(file.read(4)), self.toFloat(file.read(4)), self.toFloat(file.read(4)), self.toInt(file.read(4)), self.toFloat(file.read(4)), self.toFloat(file.read(4))])
@@ -279,18 +255,19 @@ class MMDL:
                 raise Exception(f'Unsupported Vertices Size: {self.vertSize}')
 
         # Face Table
-        file.seek(16 + self.materialTableSize + self.verticesTableSize)
+        file.seek(16 + self.objectTableSize + self.verticesTableSize)
         for i in range(self.faceCount):
             self.faceTable.append(self.toInt(file.read(self.faceEntrySize)))
         file.close()
 
     def WriteMMDL(self, filename):
         # TODO: Write MMDL
+        return
         file = open(filename, "wb")
 
         # Write Header
         file.write(b"LDMM")
-        file.write(self.toBytes(self.GetMaterialTableSize(), 4))
+        file.write(self.toBytes(self.GetObjectTableSize(), 4))
         file.write(self.toBytes(self.GetVerticesTableSize(), 4))
         file.write(self.toBytes(self.GetFaceTableSize(), 4))
         file.write(self.toBytes(self.unknownValue1, 4))
@@ -299,19 +276,19 @@ class MMDL:
         file.write(self.toBytes(self.faceEntrySize, 4))
         file.write(self.toBytes(self.GetFaceCount(), 4))
 
-        # Write Material Table
-        for material in self.materialTable:
-            for value in material[1:]:
-                if (type(value) is str):
-                    if(value == '[NO NAME]'):
-                        file.write(self.toBytes(int(0), 4))
-                    else:
-                        file.write(self.toBytes(value, len(value)))
-                        strRemainder = 32 - len(value)
-                        for i in range(strRemainder):
-                            file.write(b'\0')
-                else:
-                    file.write(self.toBytes(value, 4))
+        # Write Object Table
+        #for object in self.objectTable:
+        #    for value in object[1:]:
+        #        if (type(value) is str):
+        #            if(value == '[NO NAME]'):
+        #                file.write(self.toBytes(int(0), 4))
+        #            else:
+        #                file.write(self.toBytes(value, len(value)))
+        #                strRemainder = 32 - len(value)
+        #                for i in range(strRemainder):
+        #                    file.write(b'\0')
+        #        else:
+        #            file.write(self.toBytes(value, 4))
 
         # Write Vertices Table
         for vertice in self.verticesTable:
@@ -328,8 +305,8 @@ class MMDL:
         self.unknownValue1 = unknownValue
         self.verticesEntrySize = verticeSize
         self.faceEntrySize = faceSize
-        self.materialTable = []
-        self.materialTableSize = 0
+        self.objectEntries = self.ObjectBase()
+        self.objectTableSize = 0
         self.verticesTable = []
         self.verticesCount = 0
         self.verticesTableSize = 0
@@ -337,12 +314,14 @@ class MMDL:
         self.faceCount = 0
         self.faceTableSize = 0
 
-    def AddMaterial(self, material):
-        if (self.__checkMaterialEntry(material) == True):
-            self.materialTable.append(material)
-            self.__calculateMaterialTableSize()
-        else:
-            raise Exception("Material entry invalid")
+    # TODO: Add Object Methods
+
+    #def AddObject(self, object):
+    #    if (self.__checkObjectEntry(object) == True):
+    #        self.objectTable.append(object)
+    #        self.__calculateObjectTableSize()
+    #    else:
+    #        raise Exception("Object entry invalid")
 
     def AddVertice(self, vertice):
         if (self.verticesEntrySize == 0 and (len(vertice) * 4 == 24 or len(vertice) * 4 == 36)):
@@ -357,23 +336,23 @@ class MMDL:
         self.faceTable.append(face)
         self.__calculateFaceTableSize()
 
-    def __checkMaterialEntry(self, material):
-        if (material[0] > 4 or material[0] < 0):
+    def __checkObjectEntry(self, object):
+        if (object[0] > 4 or object[0] < 0):
             return False
 
-        structure = self.materialEntryStructures[material[0]]
+        structure = self.objectEntryStructures[object[0]]
         i = 0
-        for value in material[1:]:
+        for value in object[1:]:
             if (type(value) is not structure[i][1]):
                 return False
             i += 1
 
         return True
     
-    def __calculateMaterialTableSize(self):
+    def __calculateObjectTableSize(self):
         size = int(0)
-        for material in self.materialTable:
-            for value in material[1:]:
+        for object in self.objectTable:
+            for value in object[1:]:
                 if (type(value) is str):
                     if(value == '[NO NAME]'):
                         size += 4
@@ -382,11 +361,11 @@ class MMDL:
                 else:
                     size += 4
         size += 20 # For the header information
-        self.materialTableSize = size
+        self.objectTableSize = size
         return size
 
-    def GetMaterialTableSize(self):
-        return self.__calculateMaterialTableSize()
+    def GetObjectTableSize(self):
+        return self.__calculateObjectTableSize()
 
     def __calculateVerticeTableSize(self):
         size = int(0)
