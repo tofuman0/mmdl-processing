@@ -2,7 +2,6 @@ import mmdl
 import sys
 import traceback
 import prettyprint
-import pprint
 
 modelfile = ''
 logfile = ''
@@ -29,7 +28,7 @@ def main(argv):
         else:
             raise
     except:
-        print("Syntax Error!\r\n Usage: readmodel.py -m model.mmdl [-l logfile.txt]")
+        print("Syntax Error!\r\n Usage: readmmdl.py -m model.mmdl [-l logfile.txt]")
         sys.exit(1)
 
 def readmmdl(modelfilename):
