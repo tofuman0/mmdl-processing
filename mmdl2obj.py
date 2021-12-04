@@ -43,10 +43,9 @@ def mmdl2obj(modelfilename, objfilename):
         objbuf += f"\n# Faces {int(mmdlFile.faceCount / 3)}\n"
         for Object1 in mmdlFile.objectEntries.Entries:
             for Object2 in Object1.Entries:
-                objbuf += f"\ng {Object2.Name}\n"
+                objbuf += f"\no {Object2.Name}\n"
                 for Object3 in Object2.Entries:
                     objbuf += f"s {Object3.ID}\n"
-                    objbuf += f"o {Object3.MaterialName}\n"
                     objbuf += f"usemtl {Object3.MaterialName}\n"
                     objbuf += f"usemap {Object3.TextureName}\n"
                     for i in range(Object3.FaceCount):
