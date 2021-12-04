@@ -41,8 +41,16 @@ def mmdl2obj(modelfilename, objfilename):
         for vertice in mmdlFile.verticesTable:
             objbuf += f"v  {vertice[0]} {vertice[1]} {vertice[2]}\n"
         objbuf += f"\n# Faces {int(mmdlFile.faceCount / 3)}\n"
-        for i in range(int(mmdlFile.faceCount / 3)):
-            objbuf += f"f  {mmdlFile.faceTable[int(i * 3) + 0] + 1} {mmdlFile.faceTable[int(i * 3) + 1] + 1} {mmdlFile.faceTable[int(i * 3) + 2] + 1}\n"
+        for Object1 in mmdlFile.objectEntries.Entries:
+            for Object2 in Object1.Entries:
+                objbuf += f"\ng {Object2.Name}\n"
+                for Object3 in Object2.Entries:
+                    objbuf += f"s {Object3.ID}\n"
+                    objbuf += f"o {Object3.MaterialName}\n"
+                    objbuf += f"usemtl {Object3.MaterialName}\n"
+                    objbuf += f"usemap {Object3.TextureName}\n"
+                    for i in range(Object3.FaceCount):
+                        objbuf += f"f  {mmdlFile.faceTable[int(i * 3) + int(Object3.FaceOffset) + 0] + 1} {mmdlFile.faceTable[int(i * 3) + int(Object3.FaceOffset) + 1] + 1} {mmdlFile.faceTable[int(i * 3) + int(Object3.FaceOffset) + 2] + 1}\n"
         objoutput(objbuf)
         print(f"{objfilename} created successfully.")
     except Exception as err:
