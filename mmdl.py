@@ -1,6 +1,7 @@
 import sys
 import struct
 from dataclasses import dataclass, field
+import re
 
 class MMDL:
     def __init__(self):
@@ -130,12 +131,34 @@ class MMDL:
         TextureName: str = str()
         ID: int = 0
 
+    @dataclass
+    class Vertice1:
+        X: float = 0.0
+        Y: float = 0.0
+        Z: float = 0.0
+        Colour :int = 0
+        U: float = 0.0
+        V: float = 0.0
+
+    @dataclass
+    class Vertice2:
+        X: float = 0.0
+        Y: float = 0.0
+        Z: float = 0.0
+        Colour :int = 0
+        U: float = 0.0
+        V: float = 0.0
+        NX: float = 0.0
+        NY: float = 0.0
+        NZ: float = 0.0
+
     def ReadMMDL(self, filename):
         file = open(filename, "rb")
         self.fileType = file.read(4)
         if (self.fileType != b"LDMM"):
-            raise Exception('Not An MMDL File.')
-        self.fileName = filename
+            raise Exception(f'Not An MMDL File: {filename}')
+        fileNameOnly = re.split(r"\\|/", filename)
+        self.fileName = fileNameOnly.pop()
         
         # File header
         self.objectTableSize = self.toInt(file.read(4))
@@ -247,10 +270,27 @@ class MMDL:
         # Vertices Table
         file.seek(16 + self.objectTableSize)
         for i in range(self.verticesCount):
-            if (self.verticesEntrySize == 36):
-                self.verticesTable.append([self.toFloat(file.read(4)), self.toFloat(file.read(4)), self.toFloat(file.read(4)), self.toFloat(file.read(4)), self.toFloat(file.read(4)), self.toFloat(file.read(4)), self.toInt(file.read(4)), self.toFloat(file.read(4)), self.toFloat(file.read(4))])
-            elif (self.verticesEntrySize == 24):
-                self.verticesTable.append([self.toFloat(file.read(4)), self.toFloat(file.read(4)), self.toFloat(file.read(4)), self.toInt(file.read(4)), self.toFloat(file.read(4)), self.toFloat(file.read(4))])
+            if (self.verticesEntrySize == 24):
+                vertice = self.Vertice1()
+                vertice.X = self.toFloat(file.read(4))
+                vertice.Y = self.toFloat(file.read(4))
+                vertice.Z = self.toFloat(file.read(4))
+                vertice.Colour = self.toInt(file.read(4))
+                vertice.U = self.toFloat(file.read(4))
+                vertice.V = self.toFloat(file.read(4))
+                self.verticesTable.append(vertice)
+            elif (self.verticesEntrySize == 36):
+                vertice = self.Vertice2()
+                vertice.X = self.toFloat(file.read(4))
+                vertice.Y = self.toFloat(file.read(4))
+                vertice.Z = self.toFloat(file.read(4))
+                vertice.Colour = self.toInt(file.read(4))
+                vertice.U = self.toFloat(file.read(4))
+                vertice.V = self.toFloat(file.read(4))
+                vertice.NX = self.toFloat(file.read(4))
+                vertice.NY = self.toFloat(file.read(4))
+                vertice.NZ = self.toFloat(file.read(4))
+                self.verticesTable.append(vertice)
             else:
                 raise Exception(f'Unsupported Vertices Size: {self.vertSize}')
 
@@ -396,6 +436,13 @@ class MMDL:
         count = int(len(self.faceTable))
         self.faceCount = count
         return count
+
+    def GetFloatColour(self, value):
+        alpha = float(((value >> 24) & 0xFF) * 0.003921568627451)
+        red = float(((value >> 16) & 0xFF) * 0.003921568627451)
+        green = float(((value >> 8) & 0xFF) * 0.003921568627451)
+        blue = float(((value) & 0xFF) * 0.003921568627451)
+        return [alpha, red, green, blue]
 
     def toInt(self, bytes):
         return int.from_bytes(bytes, byteorder = "little")

@@ -54,15 +54,18 @@ def readmmdl(modelfilename):
         i = 0
         for vertices in mmdlFile.verticesTable:
             i += 1
-            logbuf += f"Vertice {i}:"
-            first = True
-            for vertice in vertices:
-                if first == True:
-                    first = False
-                    logbuf += f" {vertice}"
-                else:
-                    logbuf += f", {vertice}"
-            logbuf += "\n"
+            if (mmdlFile.verticesEntrySize == 24):
+                logbuf += f"Vertice {i}: {vertices.X}, {vertices.Y}, {vertices.Z}, {hex(vertices.Colour)}, {vertices.U}, {vertices.V}\n"
+            else:
+                logbuf += f"Vertice {i}: {vertices.X}, {vertices.Y}, {vertices.Z}, {hex(vertices.Colour)}, {vertices.U}, {vertices.V}, {vertices.NX}, {vertices.NY}, {vertices.NZ}\n"
+            #first = True
+            #for vertice in vertices:
+            #    if first == True:
+            #        first = False
+            #        logbuf += f" {vertice}"
+            #    else:
+            #        logbuf += f", {vertice}"
+            #logbuf += "\n"
         logoutput(logbuf)
 
         # Faces
