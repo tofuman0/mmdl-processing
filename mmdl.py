@@ -17,27 +17,6 @@ class MMDL:
         self.objectEntries = self.ObjectBase()
         self.verticesTable = []
         self.faceTable = []
-        self.verticesEntryStructures = [
-                [
-                    ["Unknown Value 1", float],
-                    ["Unknown Value 2", float],
-                    ["Unknown Value 3", float],
-                    ["Unknown Value 4", float],
-                    ["Unknown Value 5", float],
-                    ["Unknown Value 6", float],
-                    ["Colour", int, 4],
-                    ["Unknown Value 7", float],
-                    ["Unknown Value 8", float]
-                ],
-                [
-                    ["Unknown Value 1", float],
-                    ["Unknown Value 2", float],
-                    ["Unknown Value 3", float],
-                    ["Colour", int, 4],
-                    ["Unknown Value 5", float],
-                    ["Unknown Value 6", float]
-                ]
-            ]
         
     @dataclass
     class ObjectBase:
@@ -109,25 +88,25 @@ class MMDL:
         VerticeCount: int = 0
         FaceOffset: int = 0
         FaceCount: int = 0
+        Ka_r: float = 0.0
+        Ka_g: float = 0.0
+        Ka_b: float = 0.0
+        d: float = 0.0
+        Kd_r: float = 0.0
+        Kd_g: float = 0.0
+        Kd_b: float = 0.0
+        Ks_r: float = 0.0
+        Ks_g: float = 0.0
+        Ks_b: float = 0.0
+        Ni: float = 0.0
         UnknownValue2: float = 0.0
         UnknownValue3: float = 0.0
         UnknownValue4: float = 0.0
         UnknownValue5: float = 0.0
         UnknownValue6: float = 0.0
-        UnknownValue7: float = 0.0
-        UnknownValue8: float = 0.0
-        UnknownValue9: float = 0.0
-        UnknownValue10: float = 0.0
-        UnknownValue11: float = 0.0
-        UnknownValue12: float = 0.0
-        UnknownValue13: float = 0.0
-        UnknownValue14: float = 0.0
-        UnknownValue15: float = 0.0
-        UnknownValue16: float = 0.0
-        UnknownValue17: float = 0.0
-        UnknownValue18: float = 0.0
+        Ns: float = 0.0
         MaterialName: str = str()
-        UnknownValue19: float = 0.0
+        UnknownValue7: float = 0.0
         TextureName: str = str()
         ID: int = 0
 
@@ -145,12 +124,12 @@ class MMDL:
         X: float = 0.0
         Y: float = 0.0
         Z: float = 0.0
-        Colour :int = 0
-        U: float = 0.0
-        V: float = 0.0
         NX: float = 0.0
         NY: float = 0.0
         NZ: float = 0.0
+        Colour :int = 0
+        U: float = 0.0
+        V: float = 0.0
 
     def ReadMMDL(self, filename):
         file = open(filename, "rb")
@@ -243,25 +222,25 @@ class MMDL:
                     __object3.VerticeCount = self.toInt(file.read(4))
                     __object3.FaceOffset = self.toInt(file.read(4))
                     __object3.FaceCount = self.toInt(file.read(4))
+                    __object3.Ka_r = self.toFloat(file.read(4))
+                    __object3.Ka_g = self.toFloat(file.read(4))
+                    __object3.Ka_b = self.toFloat(file.read(4))
+                    __object3.d = self.toFloat(file.read(4))
+                    __object3.Kd_r = self.toFloat(file.read(4))
+                    __object3.Kd_g = self.toFloat(file.read(4))
+                    __object3.Kd_b = self.toFloat(file.read(4))
+                    __object3.Ks_r = self.toFloat(file.read(4))
+                    __object3.Ks_g = self.toFloat(file.read(4))
+                    __object3.Ks_b = self.toFloat(file.read(4))
+                    __object3.Ni = self.toFloat(file.read(4))
                     __object3.UnknownValue2 = self.toFloat(file.read(4))
                     __object3.UnknownValue3 = self.toFloat(file.read(4))
                     __object3.UnknownValue4 = self.toFloat(file.read(4))
                     __object3.UnknownValue5 = self.toFloat(file.read(4))
                     __object3.UnknownValue6 = self.toFloat(file.read(4))
-                    __object3.UnknownValue7 = self.toFloat(file.read(4))
-                    __object3.UnknownValue8 = self.toFloat(file.read(4))
-                    __object3.UnknownValue9 = self.toFloat(file.read(4))
-                    __object3.UnknownValue10 = self.toFloat(file.read(4))
-                    __object3.UnknownValue11 = self.toFloat(file.read(4))
-                    __object3.UnknownValue12 = self.toFloat(file.read(4))
-                    __object3.UnknownValue13 = self.toFloat(file.read(4))
-                    __object3.UnknownValue14 = self.toFloat(file.read(4))
-                    __object3.UnknownValue15 = self.toFloat(file.read(4))
-                    __object3.UnknownValue16 = self.toFloat(file.read(4))
-                    __object3.UnknownValue17 = self.toFloat(file.read(4))
-                    __object3.UnknownValue18 = self.toFloat(file.read(4))
+                    __object3.Ns = self.toFloat(file.read(4))
                     __object3.MaterialName = self.toStr(file.read(32))
-                    __object3.UnknownValue19 = self.toFloat(file.read(4))
+                    __object3.UnknownValue7 = self.toFloat(file.read(4))
                     __object3.TextureName = self.toStr(file.read(32))
                     __object3.ID = self.toInt(file.read(4))
                     subentry.Entries.append(__object3)
@@ -284,12 +263,12 @@ class MMDL:
                 vertice.X = self.toFloat(file.read(4))
                 vertice.Y = self.toFloat(file.read(4))
                 vertice.Z = self.toFloat(file.read(4))
-                vertice.Colour = self.toInt(file.read(4))
-                vertice.U = self.toFloat(file.read(4))
-                vertice.V = self.toFloat(file.read(4))
                 vertice.NX = self.toFloat(file.read(4))
                 vertice.NY = self.toFloat(file.read(4))
                 vertice.NZ = self.toFloat(file.read(4))
+                vertice.Colour = self.toInt(file.read(4))
+                vertice.U = self.toFloat(file.read(4))
+                vertice.V = self.toFloat(file.read(4))
                 self.verticesTable.append(vertice)
             else:
                 raise Exception(f'Unsupported Vertices Size: {self.vertSize}')
