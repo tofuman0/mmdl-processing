@@ -10,7 +10,7 @@ Usage: python readmmdl.py -m modelfile.mmdl [-l modelfile.log]
 ## mmdl2obj.py
 Converts MMDL to OBJ file
 ```Commandline
-Usage: python mmdl2obj.py -m modelfile.mmdl -o modelfile.obj [-mtl materialize.mtl] [-u]
+Usage: python mmdl2obj.py -m modelfile.mmdl -o modelfile.obj [-mtl materialfile.mtl] [-u]
   -mtl:  Generates a material file for the obj using the specified filename after the mtl switch
   -u:    Makes Object names unique by prefixing the filename
 ```
